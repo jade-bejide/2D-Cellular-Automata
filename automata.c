@@ -3,14 +3,16 @@
 #include<stdlib.h>
 #include<time.h>
 #include<unistd.h>
+#include <string.h>
 
 
 #define DIMENSION 40
-#define TICKS 5
+#define TICKS 20
 
 //defining an automaton
 typedef struct automaton {
     int state;
+    int nxtState;
     struct automaton *neighbours;
     int numOfNeighbours;
 } automaton;
@@ -20,6 +22,7 @@ automaton *createAutomaton() {
     automaton *cell = malloc(sizeof(automaton));
     //1 - live, 0 - dead
     cell->state = rand() % 2;
+    cell->nxtState = cell->state;
     cell->neighbours = malloc(DIMENSION * sizeof(automaton));
     cell->numOfNeighbours = 0;
 
@@ -93,7 +96,11 @@ void printAutomata(automaton** automata) {
     for (int i = 0; i < DIMENSION; i++) {
         for (int j = 0; j < DIMENSION; j++) {
             automaton cell = automata[i][j];
-            printf("%d ", cell.state);
+            if (cell.state == 1) printf("\033[0;37m");
+            else printf("\033[0;30m");
+            printf("\u2b1b");
+            //reset to default (black)
+            printf("\033[0;30m");
         }
         printf("\n");
     }
@@ -122,16 +129,26 @@ void updateState(automaton *cell, int tick) {
     int deadNeighbours = checkNeighboursState(cell, 0);
 
     //underpopulation
-    if (liveNeighbours < 2 && cell->state == 1) cell->state = 0;
+    if (liveNeighbours < 2 && cell->state == 1) cell->nxtState = 0;
     
     //lives on
-    if (liveNeighbours > 1 && liveNeighbours < 4 && cell->state == 1) cell->state = 1;
+    if (liveNeighbours > 1 && liveNeighbours < 4 && cell->state == 1) cell->nxtState = 1;
     
     //overpopulation
-    if (liveNeighbours > 3 && cell->state == 1) cell->state = 0;
+    if (liveNeighbours > 3 && cell->state == 1) cell->nxtState = 0;
     
     //reproduction
-    if (liveNeighbours == 3 && cell->state == 0) cell->state = 1;
+    if (liveNeighbours == 3 && cell->state == 0) cell->nxtState = 1;
+
+    
+}
+
+void parseState(automaton **automata) {
+    for (int x = 0; x < DIMENSION; x++) {
+        for (int y = 0; y < DIMENSION; y++) {
+            automata[x][y].state = automata[x][y].nxtState;
+        }
+    }
 }
 
 void updateAutomata(automaton** automata) {
@@ -146,6 +163,9 @@ void updateAutomata(automaton** automata) {
                 updateState(&automata[x][y], t);
             }
         }
+
+        parseState(automata);
+        establishNeighbours(automata);
     }
 }
 
