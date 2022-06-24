@@ -7,9 +7,8 @@
 
 
 #define DIMENSION_X 50
-#define DIMENSION_Y 150
-#define TICKS 20
-#define BLOCK '\u258a'
+#define DIMENSION_Y 200
+#define TICKS 100
 
 //defining an automaton
 typedef struct automaton {
@@ -85,9 +84,9 @@ void establishNeighbours(automaton** automata) {
 
 void clearScreen() {
     #if _WIN32
-        system("clear");
-    #else
         system("cls");
+    #else
+        system("clear");
     #endif
 }
 
@@ -167,7 +166,7 @@ void updateAutomata(automaton** automata) {
         // printf("\r");
         printAutomata(automata);
         sleep(1);
-        system("clear");
+        clearScreen();
         fflush(stdout);
         for (int x = 0; x < DIMENSION_X; x++) {
             for (int y = 0; y < DIMENSION_Y; y++) {
@@ -194,7 +193,7 @@ int population(automaton** automata) {
 
 int main(int n, char** argv) {
     setbuf(stdout, NULL);
-    system("clear");
+    clearScreen();
     automaton **automata = createAutomata();
     establishNeighbours(automata);
     int start = population(automata);
