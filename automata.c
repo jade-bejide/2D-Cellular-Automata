@@ -6,8 +6,10 @@
 #include <string.h>
 
 
-#define DIMENSION 40
+#define DIMENSION_X 50
+#define DIMENSION_Y 150
 #define TICKS 20
+#define BLOCK '\u258a'
 
 //defining an automaton
 typedef struct automaton {
@@ -23,20 +25,20 @@ automaton *createAutomaton() {
     //1 - live, 0 - dead
     cell->state = rand() % 2;
     cell->nxtState = cell->state;
-    cell->neighbours = malloc(DIMENSION * sizeof(automaton));
+    cell->neighbours = malloc(DIMENSION_X * sizeof(automaton));
     cell->numOfNeighbours = 0;
 
     return cell;
 }
 
 automaton **createAutomata() {  
-    automaton **automata = malloc((DIMENSION * DIMENSION)*sizeof(automaton));
+    automaton **automata = malloc((DIMENSION_X * DIMENSION_Y)*sizeof(automaton));
 
     srand(time(0));
 
-    for (int i = 0; i < DIMENSION; i++) {
-        automaton *automataN = malloc(DIMENSION * sizeof(automaton));
-        for (int j = 0; j < DIMENSION; j++) automataN[j] = *createAutomaton();
+    for (int i = 0; i < DIMENSION_X; i++) {
+        automaton *automataN = malloc(DIMENSION_Y * sizeof(automaton));
+        for (int j = 0; j < DIMENSION_Y; j++) automataN[j] = *createAutomaton();
         automata[i] = automataN;
     }
    
@@ -44,15 +46,15 @@ automaton **createAutomata() {
 }
 
 void establishNeighbours(automaton** automata) {
-    for (int x = 0; x < DIMENSION; x++) {
-        for (int y = 0; y < DIMENSION; y++) {
+    for (int x = 0; x < DIMENSION_X; x++) {
+        for (int y = 0; y < DIMENSION_Y; y++) {
             //establish neighbours array
             int pos = 0;
 
             if (y-1 >= 0) {
                 automata[x][y].neighbours[pos] = automata[x][y-1]; pos++;
             }
-            if (y + 1 < DIMENSION) {
+            if (y + 1 < DIMENSION_Y) {
                 automata[x][y].neighbours[pos] = automata[x][y+1]; pos++;
             }
             if (x - 1 >= 0) {
@@ -61,18 +63,18 @@ void establishNeighbours(automaton** automata) {
                     
                     automata[x][y].neighbours[pos] = automata[x-1][y-1]; pos++;
                 }
-                if (y + 1 < DIMENSION) {
+                if (y + 1 < DIMENSION_Y) {
                     
                     automata[x][y].neighbours[pos] = automata[x-1][y+1]; pos++;
                 }
             }
 
-            if (x + 1 < DIMENSION) {
+            if (x + 1 < DIMENSION_X) {
                 automata[x][y].neighbours[pos] = automata[x+1][y]; pos++;
                 if (y - 1 >= 0) {
                     automata[x][y].neighbours[pos] = automata[x+1][y-1]; pos++;
                 }
-                if (y + 1 < DIMENSION) {
+                if (y + 1 < DIMENSION_Y) {
                     automata[x][y].neighbours[pos] = automata[x+1][y+1]; pos++;
                 }
             }
@@ -81,10 +83,18 @@ void establishNeighbours(automaton** automata) {
     } 
 }
 
+void clearScreen() {
+    #if _WIN32
+        system("clear");
+    #else
+        system("cls");
+    #endif
+}
+
 
 //free memory (for cellular automata)
 void freeAutomata(automaton** automata) {
-    for (int i = 0; i < DIMENSION; i++) {
+    for (int i = 0; i < DIMENSION_X; i++) {
         free((automata[i])->neighbours);
         free(automata[i]);
     }
@@ -93,14 +103,15 @@ void freeAutomata(automaton** automata) {
 
 //display current automata
 void printAutomata(automaton** automata) {
-    for (int i = 0; i < DIMENSION; i++) {
-        for (int j = 0; j < DIMENSION; j++) {
+    for (int i = 0; i < DIMENSION_X; i++) {
+        for (int j = 0; j < DIMENSION_Y; j++) {
             automaton cell = automata[i][j];
             if (cell.state == 1) printf("\033[0;37m");
             else printf("\033[0;30m");
-            printf("\u2b1b");
+            printf("\u2588");
             //reset to default (black)
-            printf("\033[0;30m");
+            printf("\033[0;37m");
+            // printf("%d ", cell.state);
         }
         printf("\n");
     }
@@ -144,8 +155,8 @@ void updateState(automaton *cell, int tick) {
 }
 
 void parseState(automaton **automata) {
-    for (int x = 0; x < DIMENSION; x++) {
-        for (int y = 0; y < DIMENSION; y++) {
+    for (int x = 0; x < DIMENSION_X; x++) {
+        for (int y = 0; y < DIMENSION_Y; y++) {
             automata[x][y].state = automata[x][y].nxtState;
         }
     }
@@ -157,9 +168,9 @@ void updateAutomata(automaton** automata) {
         printAutomata(automata);
         sleep(1);
         system("clear");
-        // fflush(stdout);
-        for (int x = 0; x < DIMENSION; x++) {
-            for (int y = 0; y < DIMENSION; y++) {
+        fflush(stdout);
+        for (int x = 0; x < DIMENSION_X; x++) {
+            for (int y = 0; y < DIMENSION_Y; y++) {
                 updateState(&automata[x][y], t);
             }
         }
@@ -172,8 +183,8 @@ void updateAutomata(automaton** automata) {
 int population(automaton** automata) {
     int popSize = 0;
 
-    for (int x = 0; x < DIMENSION; x++) {
-        for (int y = 0; y < DIMENSION; y++) {
+    for (int x = 0; x < DIMENSION_X; x++) {
+        for (int y = 0; y < DIMENSION_Y; y++) {
             if (automata[x][y].state == 1) popSize++;
         }
     }
