@@ -6,8 +6,8 @@
 #include <string.h>
 
 
-#define DIMENSION_X 50
-#define DIMENSION_Y 200
+#define DIMENSION_X 20
+#define DIMENSION_Y 50
 #define TICKS 100
 
 //defining an automaton
@@ -136,7 +136,6 @@ int checkNeighboursState(automaton *cell, int state) {
 }
 void updateState(automaton *cell, int tick) {
     int liveNeighbours = checkNeighboursState(cell, 1);
-    int deadNeighbours = checkNeighboursState(cell, 0);
 
     //underpopulation
     if (liveNeighbours < 2 && cell->state == 1) cell->nxtState = 0;
