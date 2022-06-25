@@ -8,9 +8,10 @@
 
 #define DIMENSION_X 20
 #define DIMENSION_Y 50
-#define TICKS 100
+#define TICKS 1000
 
 //defining an automaton
+
 typedef struct automaton {
     int state;
     int nxtState;
@@ -162,7 +163,6 @@ void parseState(automaton **automata) {
 
 void updateAutomata(automaton** automata) {
     for (int t = 0; t < TICKS; t++) {
-        // printf("\r");
         printAutomata(automata);
         sleep(1);
         clearScreen();
@@ -206,6 +206,7 @@ int main(int n, char** argv) {
 
     return 0;
 }
+
 
 
 
